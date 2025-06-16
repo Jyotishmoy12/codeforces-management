@@ -3,6 +3,7 @@ import { syncStudentData } from "../services/codeforcesService.js";
 import { Parser } from 'json2csv';
 import dayjs from 'dayjs';
 import {sendInactivityEmail} from "../services/emailService.js";
+import rundailySync from "../cron/syncStudents.js";
 // Function to get all students
 export const getAllStudents = async (req, res) => {
     try {
@@ -227,6 +228,16 @@ export const getStudentProfile = async (req, res) => {
     }
 }
 
+export const runDailySyncController = async(req, res)=>{
+    try{
+        await rundailySync();
+        res.status(200).json({message:"Daily sync completed"});
+    }catch(err){
+        console.error("Error running daily sync:", err);
+        res.status(500).json({ message: "Error running daily sync", error: err.message });
+    }
+}
+
 export default {
     getAllStudents,
     createStudent,
@@ -237,5 +248,6 @@ export default {
     toggleEmailReminder,
     getReminderStats,
     downloadCSV,
-    getStudentProfile
+    getStudentProfile,
+    runDailySyncController
 };

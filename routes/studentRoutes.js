@@ -26,4 +26,9 @@ router.get('/download/csv', studentController.downloadCSV);
 // Route to get student profile data
 router.get('/:id/profile', studentController.getStudentProfile);
 
+// Route to run daily sync
+router.post('/run-daily-sync', studentController.runDailySyncController);
+
+
+
 export default router;
