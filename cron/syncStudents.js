@@ -1,9 +1,9 @@
 import Student from '../models/student.js';
-import {syncStudentData} from '../services/codeforcesService.js';
+import { syncStudentData } from '../services/codeforcesService.js';
 import { sendInactivityEmail } from '../services/emailService.js';
 
 const rundailySync = async () => {
-    console.log("🔁 Running Codeforces Data Sync + Inactivity Check...");
+  console.log("🔁 Running Codeforces Data Sync + Inactivity Check...");
 
   const students = await Student.find();
   const now = Math.floor(Date.now() / 1000);
@@ -13,19 +13,18 @@ const rundailySync = async () => {
     const { latestSubmissionTime } = await syncStudentData(student);
 
     const isInactive = now - latestSubmissionTime > SEVEN_DAYS;
-    const shouldEmail = isInactive && student.emailRemindersEnabled;
+    const shouldEmail = isInactive && !student.emailReminderDisabled; 
 
     if (shouldEmail) {
       const sent = await sendInactivityEmail(student.email, student.name);
       if (sent) {
-        student.emailReminderSent += 1;
+        student.inactivityReminderCount += 1; 
         await student.save();
       }
     }
   }
 
   console.log("✅ Daily sync + email reminders done.");
-
-}
+};
 
 export default rundailySync;
