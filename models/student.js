@@ -26,7 +26,7 @@ const studentSchema = new mongoose.Schema({
     cfHandle: String,
     currentRating: Number,
     maxRating: Number,
-
+    lastSyncedAt: { type: Date, default: Date.now }, 
     cfDataLastUpdated: Date,
 
     cfContests: [contestSchema],

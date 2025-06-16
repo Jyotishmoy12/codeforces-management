@@ -2,7 +2,7 @@ import Student from "../models/student.js";
 import { syncStudentData } from "../services/codeforcesService.js";
 import { Parser } from 'json2csv';
 import dayjs from 'dayjs';
-
+import {sendInactivityEmail} from "../services/emailService.js";
 // Function to get all students
 export const getAllStudents = async (req, res) => {
     try {
@@ -99,15 +99,24 @@ export const toggleEmailReminder = async (req, res) => {
         console.error("Student not found with ID:", req.params.id);
         return res.status(404).json({ message: "Student not found" });
     }
+
     student.emailReminderDisabled = !student.emailReminderDisabled;
     await student.save();
+
+    if (!student.emailReminderDisabled) {
+        // Email reminder was just enabled — send inactivity email now
+        const sent = await sendInactivityEmail(student.email, student.name);
+        if (!sent) {
+            return res.status(500).json({ message: "Failed to send inactivity email" });
+        }
+    }
+
     res.status(200).json({
         message: "Email reminder toggled",
         enabled: !student.emailReminderDisabled
     });
+};
 
-
-}
 
 // get reminder status
 export const getReminderStats = async (req, res) => {
